@@ -8,6 +8,13 @@ und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/lang/d
 ---
 
 ## [Unreleased]
+### Hinzugefügt
+- **Flutter-App (`flutter_app/`)** für Android & iOS mit identischem Funktionsumfang und gemeinsamem Supabase-Backend: Setup, Home, Party (Live-Ranking, Feed, Drink-Sheet, Runden, Undo, Quick-Repeat), Profil, Wrapped-Story, Guide, Promille-Radar, Party-PIN.
+- **Animierter Startscreen:** Neon-Aurora, Logo-Pop mit Glanz-Schimmer, Buchstaben-Reveal des Titels und aufsteigende Bierblasen; lädt währenddessen das Profil und blendet dann zu Setup bzw. Home über. Respektiert „Animationen reduzieren“.
+- Nativer Splash und App-Icons (Android Adaptive Icon, iOS) aus dem bestehenden Logo.
+- Demo-Modus (`--dart-define=DEMO_MODE=true`) mit In-Memory-Backend für Entwicklung, Screenshots und Tests.
+- Dart-Tests: Portierung der vitest-Suite (Alkohol-Rechner, Watson/BAC, Badges, Meilensteine, Symbol-Code) plus Wrapped-Auswertung, Party-State/Realtime und Widget-Flows.
+
 ### Geplant
 - Push-Benachrichtigungen bei neuen Party-Runden
 - Erweiterte Exportfunktionen für Party-Statistiken

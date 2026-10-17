@@ -22,13 +22,29 @@ Eine moderne, party-basierte Progressive Web App (PWA) im **Neon Night Design**,
 
 ## Tech-Stack
 
-- **Frontend:** React 19, Vite, React Router, Tailwind CSS, Canvas-Confetti, Lucide Icons, Vite-PWA
+- **Frontend (Web/PWA):** React 19, Vite, React Router, Tailwind CSS, Canvas-Confetti, Lucide Icons, Vite-PWA
+- **Native App (Android & iOS):** Flutter – siehe [`flutter_app/`](./flutter_app)
 - **Backend & Database:** Supabase (PostgreSQL, Supabase Realtime, Edge Functions)
 - **Hosting:** Vercel (mit SPA Rewrites via `vercel.json`)
 
 ---
 
-## Setup & Schnellanleitung
+## 📱 Native App (Flutter)
+
+Neben der PWA gibt es eine echte Android-/iOS-App mit animiertem Startscreen im Ordner [`flutter_app/`](./flutter_app).
+Sie nutzt dasselbe Supabase-Backend und denselben Funktionsumfang (Live-Ranking, Feed, Runden, Wrapped, Promille-Radar, Party-PIN).
+
+```bash
+cd flutter_app
+flutter run --dart-define=DEMO_MODE=true                         # Demo ohne Backend
+flutter run --dart-define-from-file=dart_defines.json            # mit deinem Supabase-Projekt
+```
+
+Details, Builds und Unterschiede zur Web-App: [`flutter_app/README.md`](./flutter_app/README.md).
+
+---
+
+## Setup & Schnellanleitung (Web)
 
 Eine detaillierte Anleitung zur Datenbank-Einrichtung und den Schlüsseln findest du in [`SETUP.md`](./SETUP.md).
 

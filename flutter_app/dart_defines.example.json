@@ -1,0 +1,5 @@
+{
+  "SUPABASE_URL": "https://YOUR-PROJECT-REF.supabase.co",
+  "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_YOUR_KEY",
+  "WEB_BASE_URL": ""
+}

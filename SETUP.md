@@ -49,3 +49,19 @@ npm run lint
 # Produktions-Build erstellen
 npm run build
 ```
+
+---
+
+## 5. Native App (Flutter)
+
+Die Android-/iOS-App liegt in [`flutter_app/`](./flutter_app) und verwendet dasselbe Supabase-Projekt.
+
+```bash
+cd flutter_app
+cp dart_defines.example.json dart_defines.json   # URL + Publishable Key eintragen
+flutter pub get
+flutter run --dart-define-from-file=dart_defines.json
+```
+
+Ohne Backend: `flutter run --dart-define=DEMO_MODE=true`. Builds, Signing und Architektur: [`flutter_app/README.md`](./flutter_app/README.md).
+
