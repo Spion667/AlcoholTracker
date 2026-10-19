@@ -49,3 +49,6 @@ app.*.map.json
 
 # Lokale Supabase-Konfiguration (nicht einchecken)
 /dart_defines.json
+
+# iOS-Signing (privater Schluessel, Zertifikate)
+/ios-signing/

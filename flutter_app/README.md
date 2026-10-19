@@ -66,13 +66,25 @@ flutter build appbundle       --dart-define-from-file=dart_defines.json   # Play
 flutter build ipa             --dart-define-from-file=dart_defines.json
 ```
 
-Vor der Veröffentlichung:
+IDs: Android `com.alcoholtracker.alcohol_tracker`, iOS `com.alcoholtracker.alcoholTracker`
+(iPhone-only). Nach dem Store-Release nicht mehr änderbar.
 
-1. **Bundle-/Application-ID festlegen.** Aktuell `com.alcoholtracker.alcohol_tracker`
-   (`android/app/build.gradle.kts`, `ios/Runner.xcodeproj`). Nach dem Store-Release nicht mehr änderbar.
-2. **Android-Signing** einrichten (<https://docs.flutter.dev/deployment/android#sign-the-app>) – Release-Builds sind
-   sonst nur debug-signiert.
-3. **iOS-Team/Signing** in Xcode setzen.
+### CI (GitHub Actions)
+
+`.github/workflows/flutter.yml` läuft bei Änderungen unter `flutter_app/`:
+
+| Job | Wann | Ergebnis |
+| --- | --- | --- |
+| Analyze & Test | immer | `dart format`, `flutter analyze`, `flutter test` |
+| Android APK | immer | Release-APK als Artefakt (14 Tage, debug-signiert) |
+| iOS (unsigniert) | Push auf `main`, manueller Start oder `[ios]` in der Commit-Message | prüft, dass der iOS-Build durchläuft |
+| iOS → TestFlight | manueller Start mit Häkchen | signiert und lädt zu TestFlight hoch |
+
+iOS-Jobs laufen auf macOS-Runnern; bei privaten Repos zählt jede Minute zehnfach gegen das
+Actions-Kontingent. Einrichtung von TestFlight ohne Mac: **[docs/TESTFLIGHT.md](docs/TESTFLIGHT.md)**.
+
+Für den Play Store fehlt noch ein eigener Upload-Keystore
+(<https://docs.flutter.dev/deployment/android#sign-the-app>).
 
 App-Icon und nativer Splash werden aus `assets/images` erzeugt:
 

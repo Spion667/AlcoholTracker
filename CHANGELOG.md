@@ -14,6 +14,10 @@ und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/lang/d
 - Nativer Splash und App-Icons (Android Adaptive Icon, iOS) aus dem bestehenden Logo.
 - Demo-Modus (`--dart-define=DEMO_MODE=true`) mit In-Memory-Backend für Entwicklung, Screenshots und Tests.
 - Dart-Tests: Portierung der vitest-Suite (Alkohol-Rechner, Watson/BAC, Badges, Meilensteine, Symbol-Code) plus Wrapped-Auswertung, Party-State/Realtime und Widget-Flows.
+- **CI für die Flutter-App** (GitHub Actions): Analyze/Test, Android-APK als Artefakt, iOS-Build auf macOS sowie signierter Upload zu TestFlight ohne eigenen Mac (Anleitung in `flutter_app/docs/TESTFLIGHT.md`).
+
+### Geändert
+- iOS-App ist iPhone-only (Portrait); `Info.plist` beantwortet die Exportverschlüsselung (`ITSAppUsesNonExemptEncryption = NO`).
 
 ### Geplant
 - Push-Benachrichtigungen bei neuen Party-Runden
