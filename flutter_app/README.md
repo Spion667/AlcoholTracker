@@ -76,15 +76,16 @@ IDs: Android `com.alcoholtracker.alcohol_tracker`, iOS `com.alcoholtracker.alcoh
 | Job | Wann | Ergebnis |
 | --- | --- | --- |
 | Analyze & Test | immer | `dart format`, `flutter analyze`, `flutter test` |
-| Android APK | immer | Release-APK als Artefakt (14 Tage, debug-signiert) |
-| iOS (unsigniert) | Push auf `main`, manueller Start oder `[ios]` in der Commit-Message | prüft, dass der iOS-Build durchläuft |
-| iOS → TestFlight | manueller Start mit Häkchen | signiert und lädt zu TestFlight hoch |
+| Android APK | immer | APK als Artefakt (14 Tage); signiert, sobald der Schlüssel als Secret hinterlegt ist |
+| Android → Release | manueller Start mit Häkchen „Android-Release“ | signierte APK als GitHub-Release |
+| iOS (unsigniert) | `[ios]` in der Commit-Message | prüft, dass der iOS-Build durchläuft |
+| iOS → TestFlight | manueller Start mit Häkchen „TestFlight“ | signiert und lädt zu TestFlight hoch |
 
 iOS-Jobs laufen auf macOS-Runnern; bei privaten Repos zählt jede Minute zehnfach gegen das
-Actions-Kontingent. Einrichtung von TestFlight ohne Mac: **[docs/TESTFLIGHT.md](docs/TESTFLIGHT.md)**.
+Actions-Kontingent.
 
-Für den Play Store fehlt noch ein eigener Upload-Keystore
-(<https://docs.flutter.dev/deployment/android#sign-the-app>).
+- Android (APK direkt verteilen): **[docs/ANDROID.md](docs/ANDROID.md)**
+- iOS (TestFlight ohne Mac): **[docs/TESTFLIGHT.md](docs/TESTFLIGHT.md)**
 
 App-Icon und nativer Splash werden aus `assets/images` erzeugt:
 

@@ -11,13 +11,17 @@ on:
       - ".github/workflows/flutter.yml"
   workflow_dispatch:
     inputs:
+      android_release:
+        description: "Signierte Android-APK als GitHub-Release veröffentlichen"
+        type: boolean
+        default: false
       testflight:
         description: "iOS-Build signieren und zu TestFlight hochladen"
         type: boolean
         default: false
 
 concurrency:
-  group: flutter-${{ github.ref }}-${{ inputs.testflight || 'ci' }}
+  group: flutter-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 env:
@@ -44,9 +48,11 @@ jobs:
       - run: flutter test
 
   android:
-    name: Android APK
+    name: Android APK${{ inputs.android_release && ' → Release' || '' }}
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -63,22 +69,59 @@ jobs:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
           WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
+          REQUIRE_SUPABASE: ${{ inputs.android_release && 'true' || 'false' }}
         run: scripts/write_dart_defines.sh
-      - run: flutter build apk --release --build-number=${{ github.run_number }} --dart-define-from-file=dart_defines.json
+      - name: Signaturschlüssel einrichten
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          REQUIRE_SIGNING: ${{ inputs.android_release && 'true' || 'false' }}
+        run: |
+          if [[ -z "$ANDROID_KEYSTORE_BASE64" ]]; then
+            if [[ "$REQUIRE_SIGNING" == "true" ]]; then
+              echo "::error::Secret ANDROID_KEYSTORE_BASE64 fehlt (siehe flutter_app/docs/ANDROID.md)."
+              exit 1
+            fi
+            echo "::warning::Kein Signaturschlüssel – APK ist debug-signiert und nicht update-fähig."
+            exit 0
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.p12"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.p12" >> "$GITHUB_ENV"
+      - name: Build APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: upload
+        run: |
+          flutter build apk --release --build-number=${{ github.run_number }} --dart-define-from-file=dart_defines.json
+          version="$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)"
+          apk="alcoholtracker-$version-${{ github.run_number }}.apk"
+          mv build/app/outputs/flutter-apk/app-release.apk "build/$apk"
+          echo "APP_VERSION=$version" >> "$GITHUB_ENV"
+          echo "APK_NAME=$apk" >> "$GITHUB_ENV"
       - uses: actions/upload-artifact@v4
         with:
-          name: alcoholtracker-android-${{ github.run_number }}
-          path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
+          name: ${{ env.APK_NAME }}
+          path: flutter_app/build/${{ env.APK_NAME }}
           retention-days: 14
+      - name: GitHub-Release erstellen
+        if: ${{ inputs.android_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-v${{ env.APP_VERSION }}-${{ github.run_number }}
+          name: AlcoholTracker ${{ env.APP_VERSION }} (Android, Build ${{ github.run_number }})
+          target_commitish: ${{ github.sha }}
+          files: flutter_app/build/${{ env.APK_NAME }}
+          body: |
+            Android-APK zum direkten Installieren (Build ${{ github.run_number }}, Commit ${{ github.sha }}).
+            Lässt sich über jede frühere Release-Version installieren, ohne Daten zu verlieren.
 
-  # macOS-Minuten sind teuer (privates Repo: Faktor 10). Deshalb nur auf main,
-  # bei manuellem Start oder wenn die Commit-Message "[ios]" enthaelt.
+  # macOS-Minuten sind teuer (privates Repo: Faktor 10). Deshalb nur fuer TestFlight
+  # oder wenn die Commit-Message "[ios]" enthaelt.
   ios:
     name: iOS ${{ inputs.testflight && '→ TestFlight' || '(unsigniert)' }}
     needs: check
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.ref == 'refs/heads/main' ||
+      inputs.testflight ||
       contains(github.event.head_commit.message, '[ios]')
     runs-on: macos-latest
     timeout-minutes: 45
